@@ -10,7 +10,9 @@ import Foundation
 import FoundationNetworking
 #endif
 
-final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate {
+import Combine
+
+final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSessionDelegate, URLSessionDataDelegate,Cancellable {
     
     enum StreamingError: Error {
         case unknownContent
@@ -30,14 +32,19 @@ final class StreamingSession<ResultType: Codable>: NSObject, Identifiable, URLSe
     
     private var previousChunkBuffer = ""
 
+    private var dataTask: URLSessionDataTask?
+
     init(urlRequest: URLRequest) {
         self.urlRequest = urlRequest
     }
     
     func perform() {
-        self.urlSession
-            .dataTask(with: self.urlRequest)
-            .resume()
+        dataTask = self.urlSession.dataTask(with: self.urlRequest)
+        dataTask?.resume()
+    }
+
+    func cancel() {
+        dataTask?.cancel()
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {

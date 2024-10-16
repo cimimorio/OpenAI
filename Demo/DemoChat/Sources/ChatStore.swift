@@ -107,7 +107,6 @@ public final class ChatStore: ObservableObject {
                     tools: functions
                 )
             )
-
             var functionCalls = [(name: String, argument: String?)]()
             for try await partialChatResult in chatsStream {
                 for choice in partialChatResult.choices {
